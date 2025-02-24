@@ -2,6 +2,7 @@ package io.security.springmaster;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -18,24 +19,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                .httpBasic(httpSecurityHttpBasicConfigurer -> httpSecurityHttpBasicConfigurer.disable())
-                .formLogin(formLogin ->
-                        formLogin
-                                .loginPage("/loginPage")
-                                .loginProcessingUrl("/loginProc")
-                                .defaultSuccessUrl("/", true)
-                                .failureUrl("/failed")
-                                .usernameParameter("userId")
-                                .passwordParameter("passwd")
-                                .successHandler((request, response, authentication) -> {
-                                    System.out.println("authentication: " + authentication);
-                                    response.sendRedirect("/home");
-                                })
-                                .failureHandler((request, response, exception) -> {
-                                    System.out.println("exception: " + exception.getMessage());
-                                    response.sendRedirect("/login");
-                                })
-                                .permitAll()
+                .httpBasic(httpSecurityHttpBasicConfigurer -> httpSecurityHttpBasicConfigurer
+                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
                 );
 
         return http.build();
