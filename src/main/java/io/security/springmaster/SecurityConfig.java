@@ -19,8 +19,15 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
-                .httpBasic(httpSecurityHttpBasicConfigurer -> httpSecurityHttpBasicConfigurer
-                        .authenticationEntryPoint(new CustomAuthenticationEntryPoint())
+                .formLogin(Customizer.withDefaults())
+                .rememberMe(httpSecurityRememberMeConfigurer ->
+                        httpSecurityRememberMeConfigurer
+                                .alwaysRemember(true)
+                                .tokenValiditySeconds(3600)
+                                .userDetailsService(userDetailsService())
+                                .rememberMeParameter("remember")
+                                .rememberMeCookieName("PHPSESSID")
+                                .key("my-key")
                 );
 
         return http.build();
